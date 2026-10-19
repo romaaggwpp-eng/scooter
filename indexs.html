@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scooter Upgrader</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg1:#dfe9ff;--bg2:#ffe3d1;--gl:rgba(255,255,255,.42);--glb:rgba(255,255,255,.75);--tx:#14182b;--mut:#4d5675;--ac:#ff6a1a;--ok:#12c46e;--bad:#f0454d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg1:#0b1022;--bg2:#1d0f22;--gl:rgba(255,255,255,.08);--glb:rgba(255,255,255,.22);--tx:#f2f4ff;--mut:#aab2d0}}
+:root[data-theme="dark"]{color-scheme:dark;--bg1:#0b1022;--bg2:#1d0f22;--gl:rgba(255,255,255,.08);--glb:rgba(255,255,255,.22);--tx:#f2f4ff;--mut:#aab2d0}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;color:var(--tx);font-family:"Segoe UI",Roboto,Arial,sans-serif;max-width:560px;margin:0 auto;padding:10px 10px 80px;position:relative}
+body::before,body::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(60px);opacity:.7}
+body::before{width:300px;height:300px;background:#ff7a3d;left:-90px;top:120px}
+body::after{width:340px;height:340px;background:#3d7bff;right:-120px;bottom:60px}
+.glass,.it,.bp,nav button,.bal,.btn.g{background:var(--gl);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);border:1px solid var(--glb);box-shadow:inset 0 1px 1px rgba(255,255,255,.6),inset 0 -8px 16px rgba(255,255,255,.06),0 8px 24px rgba(20,30,80,.14)}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 2px 10px}
+h1{font-size:17px;margin:0;font-weight:800}
+.hr{display:flex;gap:6px;align-items:center}
+.bal{border-radius:20px;padding:8px 13px;font-weight:800;color:var(--ac);font-size:14px}
+#bonus{border:1px solid var(--glb);background:linear-gradient(135deg,#ff8a3d,#ff4d6d);color:#fff;border-radius:20px;padding:8px 12px;font-weight:800;font-size:13px;box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 6px 16px rgba(255,90,60,.35)}
+#bonus:disabled{background:var(--gl);color:var(--mut);box-shadow:none}
+nav{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);padding:4px 0 8px;z-index:5}
+nav button{flex:1;padding:10px 2px;color:var(--mut);border-radius:14px;font-weight:700;font-size:12.5px}
+nav button.on{background:linear-gradient(135deg,#ff8a3d,#ff5a1f);color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.it{border-radius:20px;padding:8px;text-align:center;position:relative;font-size:12px;cursor:pointer;border-width:2px}
+.it.sel{border-color:var(--ac);box-shadow:0 0 18px rgba(255,106,26,.55),inset 0 1px 1px rgba(255,255,255,.6)}
+.it svg{width:100%;height:62px;filter:drop-shadow(0 4px 5px rgba(0,0,0,.25))}
+.it b{display:block;font-size:13px;margin-top:2px}
+.br{font-size:10.5px;font-weight:800;color:var(--mut);margin-top:3px}
+.st{color:var(--mut);font-size:11px;line-height:1.35}
+.pr{color:var(--ac);font-weight:800;margin-top:3px}
+.tag{position:absolute;top:7px;left:7px;font-size:10px;font-weight:700;padding:1px 7px;border-radius:8px;color:#fff}
+.btn{border:0;background:linear-gradient(135deg,#ff8a3d,#ff5a1f);color:#fff;font-weight:800;border-radius:16px;padding:12px 14px;font-size:14px;width:100%;box-shadow:inset 0 1px 1px rgba(255,255,255,.5),0 6px 16px rgba(255,90,30,.3)}
+.btn.g{color:var(--tx)}
+.btn.s{padding:6px;font-size:12px;margin-top:6px}
+.btn:disabled{opacity:.4}
+h2{font-size:13.5px;margin:14px 2px 8px;color:var(--mut)}
+.wheel{width:210px;height:210px;border-radius:50%;margin:12px auto;position:relative;display:flex;align-items:center;justify-content:center;transition:box-shadow .3s}
+.wheel.win{box-shadow:0 0 60px 14px rgba(18,196,110,.8)}
+.wheel.lose{box-shadow:0 0 60px 14px rgba(240,69,77,.8)}
+.wheel::after{content:"";position:absolute;inset:18px;border-radius:50%;background:var(--gl);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--glb)}
+.mid{position:relative;z-index:2;text-align:center;font-weight:800;font-size:30px}
+.mid small{display:block;font-size:11px;color:var(--mut);font-weight:600}
+.arm{position:absolute;inset:0;z-index:3;border-radius:50%}
+.arm i{position:absolute;left:50%;top:-4px;width:6px;height:34px;margin-left:-3px;background:var(--tx);border-radius:3px}
+.res{text-align:center;font-weight:800;min-height:26px;font-size:15px;margin-bottom:6px}
+.bp{display:flex;align-items:center;gap:10px;border-radius:20px;padding:10px;margin-bottom:8px}
+.bp .lv{width:38px;height:38px;border-radius:50%;background:var(--glb);display:flex;align-items:center;justify-content:center;font-weight:800}
+.bp.done .lv{background:var(--ok);color:#fff}
+.bp div.m{flex:1;font-size:13px}.bp .btn{width:auto;padding:9px 12px}
+.bar{height:12px;background:var(--gl);border:1px solid var(--glb);border-radius:8px;overflow:hidden;margin:6px 0 12px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff8a3d,#ff4d6d)}
+.empty{text-align:center;color:var(--mut);padding:24px;font-size:13px}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:0}
+#fx.win{animation:fl 1.6s}#fx.win{box-shadow:inset 0 0 120px 40px rgba(18,196,110,.85);background:radial-gradient(circle,rgba(18,196,110,.15),transparent 70%)}
+#fx.lose{animation:fl 1.6s;box-shadow:inset 0 0 120px 40px rgba(240,69,77,.85);background:radial-gradient(circle,rgba(240,69,77,.15),transparent 70%)}
+#fx span{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:90px}
+@keyframes fl{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.clown{display:inline-block;font-size:26px;vertical-align:middle;animation:sh .6s}
+@keyframes sh{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+
+h1{font-size:15px}
+#gear{width:36px;height:36px;border-radius:50%;border:1px solid var(--glb);background:var(--gl);backdrop-filter:blur(18px);font-size:16px;padding:0}
+input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--glb);background:var(--gl);color:var(--tx);font-size:14px;margin:6px 0;backdrop-filter:blur(10px)}
+.bp.ad{display:block}.ad>b{font-size:13px}.ad .row{margin:4px 0 0}
+#md{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(10,15,40,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#md.on{display:flex;animation:in .3s}
+.mb{width:min(86%,320px);padding:18px;border-radius:24px;background:var(--bg1);border:1px solid var(--glb);box-shadow:0 20px 60px rgba(0,0,0,.4);animation:pop .4s cubic-bezier(.2,.8,.2,1)}
+#pe{color:var(--bad);font-size:12px;min-height:16px;margin-bottom:6px}
+.it,.btn,nav button,#bonus{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .3s,border-color .3s,background .3s,opacity .3s}
+.it:active,.btn:active,nav button:active,#bonus:active{transform:scale(.95)}
+main.a{animation:in .45s cubic-bezier(.2,.8,.2,1)}
+main.a .it,main.a .bp{animation:pop .5s cubic-bezier(.2,.8,.2,1) backwards}
+main.a .it:nth-child(2n),main.a .bp:nth-child(2n){animation-delay:.06s}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+@keyframes pop{from{opacity:0;transform:scale(.88)}}
+.res span{display:inline-block;animation:pop .5s cubic-bezier(.2,.8,.2,1)}
+.drp{animation:pop .6s cubic-bezier(.2,.8,.2,1)}
+.roul{position:relative;overflow:hidden;border-radius:20px;margin:10px 0;background:var(--gl);border:1px solid var(--glb);backdrop-filter:blur(18px)}
+.rs{display:flex;width:max-content;will-change:transform}
+.rc{flex:0 0 96px;width:96px;padding:8px 4px;text-align:center;border-bottom:3px solid var(--c)}
+.rc svg{width:100%;height:46px}.rc small{font-size:10px;display:block;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rpt{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ac);z-index:2;box-shadow:0 0 10px var(--ac)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<div id="fx"></div><div id="md"><div class="mb"><b>Админ-панель</b><input id="pw" type="password" placeholder="Пароль" onkeydown="if(event.key==='Enter')chk()"><div id="pe"></div><button class="btn" onclick="chk()">Войти</button><button class="btn g" style="margin-top:6px" onclick="cl()">Отмена</button></div></div>
+<header><h1>🛴 Scooter Upgrader</h1><div class="hr"><button id="bonus" onclick="bonus()"></button><button id="gear" onclick="gear()">⚙️</button><div class="bal" id="bal"></div></div></header>
+<nav id="nav"></nav><main id="main"></main>
+<script>
+// [название, цена, км/ч, км, Вт, бренд, цвет корпуса, акцент, радиус колеса, двойная стойка]
+const S=[
+["B1",30,12,6,120,"Windgoo","#3a3f4a","#7dd957",7,0],
+["i9",55,15,8,150,"iScooter","#2e3440","#37c2ff",8,0],
+["VX",75,17,10,180,"Hiper","#e8e8ee","#ff3d71",8,0],
+["S1",100,18,10,200,"Kugoo","#2a2a2e","#ff7a1a",8,0],
+["S3",220,20,15,300,"Kugoo","#2d2d33","#ff7a1a",9,0],
+["Mi 1S",400,22,20,250,"Xiaomi","#f2f2f2","#ff6700",9,0],
+["Mi Lite",700,22,25,250,"Xiaomi","#e6e6ea","#ff6700",9,0],
+["Mi Pro 2",1200,25,45,300,"Xiaomi","#d9dbe3","#ff6700",10,0],
+["V40",2000,25,40,350,"Navee","#2b3a55","#39d0b8",10,0],
+["F40",3000,30,40,350,"Ninebot","#8c93a1","#2fb6ff",10,0],
+["Max G30",5000,30,65,350,"Ninebot","#6f7787","#2fb6ff",11,0],
+["Kirin M4 Pro",7000,45,45,500,"Kugoo","#22222a","#ff7a1a",11,0],
+["G-Booster",9000,45,55,1000,"Kugoo","#1e1e22","#ff7a1a",11,0],
+["Mantis 8",12000,55,55,800,"Kaabo","#3a161a","#ff2e3a",12,1],
+["Mantis 10",16000,65,60,1600,"Kaabo","#2b1114","#ff2e3a",12,1],
+["Zero 10X",22000,65,70,2000,"Zero","#1b2a1f","#5cff7a",12,1],
+["GT2",30000,70,70,2400,"Ninebot","#20242e","#3dd9ff",12,1],
+["10+",42000,80,100,2800,"Vsett","#2a2f3a","#ffb21a",12,1],
+["Thunder 3",60000,90,120,5400,"Dualtron","#101827","#3d7bff",13,1],
+["Victor Luxury",85000,95,130,5400,"Dualtron","#141a2c","#4da3ff",13,1],
+["Storm Limited",120000,100,150,8000,"Dualtron","#0a0f1c","#7b5cff",14,1],
+["Wolf King GT",180000,105,160,8400,"Kaabo","#1a0d0d","#ff4a2e",14,1],
+["Wolf King GT Pro",250000,110,180,10000,"Kaabo","#150a0a","#ffc21a",14,1],
+["Apollo Pro",400000,130,200,12000,"Apollo","#0c1014","#d6e4ff",14,1],
+["Dualtron X2",1000000,150,250,18000,"Dualtron","#07070c","#ff3df0",14,1]];
+const T6=["Мусор","Обычный","Редкий","Эпик","Мифик","Легенда"],C6=["#8a8f98","#4c9be8","#8b5cf6","#e040a0","#ef4444","#f59e0b"];
+const TN=S.map((x,k)=>T6[Math.floor(k/S.length*6)]),TC=S.map((x,k)=>C6[Math.floor(k/S.length*6)]);
+const CASES=[["Мини-кейс",25,0,100],["Старт-кейс",100,20,250],["Городской кейс",1000,200,2500],["Про-кейс",10000,2000,25000],["Элит-кейс",100000,20000,250000]];
+const BP=[];for(let l=1;l<=15;l++)BP.push(l%5==0?{s:[9,14,19][l/5-1]}:{m:l*150});
+let G={bal:1000,inv:[],xp:0,cl:[],nid:1,bt:0,au:0,a:{force:0,m:1,bon:200,cd:300,free:0}};
+try{const d=localStorage.getItem("scup3");if(d)G=Object.assign(G,JSON.parse(d))}catch(e){}
+if(!G.inv.length&&G.nid==1){add(0);add(1)}
+let tab=0,sel=[],tgt=-1,busy=false,res="",anim=false;
+const $=id=>document.getElementById(id);
+function save(){try{localStorage.setItem("scup3",JSON.stringify(G))}catch(e){}}
+function add(k){G.inv.push({id:G.nid++,k})}
+const f=n=>Math.round(n).toLocaleString("ru-RU")+" ₽";
+function svg(k){
+ const s=S[k],bc=s[6],ac=s[7],r=s[8],d=s[9],cy=72-r,x1=28,x2=112,id="g"+k+Math.random().toString(36).slice(2,5);
+ const wheel=x=>`<circle cx="${x}" cy="${cy}" r="${r-2}" fill="none" stroke="#17181c" stroke-width="5"/><circle cx="${x}" cy="${cy}" r="${r-5}" fill="none" stroke="${ac}" stroke-width="1.6"/><circle cx="${x}" cy="${cy}" r="2" fill="${ac}"/>`;
+ let st=d?`<path d="M104 ${cy} L92 16 M112 ${cy} L100 16" stroke="${bc}" stroke-width="3.5" stroke-linecap="round"/><path d="M107 ${cy-8}l4 5-4 5 4 5" fill="none" stroke="${ac}" stroke-width="1.5"/>`:`<path d="M108 ${cy-2} L94 16" stroke="${bc}" stroke-width="5" stroke-linecap="round"/>`;
+ let bat=k>=5?`<rect x="${d?96:98}" y="30" width="9" height="16" rx="3" fill="${ac}" opacity=".85" transform="rotate(8 100 38)"/>`:"";
+ return`<svg viewBox="0 0 140 80"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bc}"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></linearGradient></defs>${wheel(x1)}${wheel(x2)}<path d="M${x1-r+3} ${cy} A${r} ${r} 0 0 1 ${x1+r-3} ${cy}" fill="none" stroke="${bc}" stroke-width="3"/><rect x="${x1}" y="${cy-3}" width="${x2-x1-6}" height="8" rx="4" fill="url(#${id})" stroke="${ac}" stroke-width=".8"/>${st}${bat}<path d="M82 16h22" stroke="${ac}" stroke-width="4" stroke-linecap="round"/><circle cx="106" cy="16" r="3" fill="#fff"/><path d="M110 16l14 4v-8z" fill="#fff" opacity=".3"/></svg>`}
+function card(k,extra="",cls="",click=""){const s=S[k];return`<div class="it ${cls}" ${click}><span class="tag" style="background:${TC[k]}">${TN[k]}</span>${svg(k)}<div class="br">${s[5]}</div><b>${s[0]}</b><div class="st">⚡${s[2]} км/ч · 🔋${s[3]} км<br>💪${s[4]} Вт</div><div class="pr">${f(s[1])}</div>${extra}</div>`}
+const nm=k=>S[k][5]+" "+S[k][0];
+function lvl(){return Math.min(15,Math.floor(G.xp/100))}
+function render(){
+ $("bal").textContent=f(G.bal);tick();
+ $("nav").innerHTML=["Апгрейд","Инвентарь","Кейсы","Баттл пасс"].concat(G.au?["Админ"]:[]).map((t,i)=>`<button class="${i==tab?"on":""}" onclick="go(${i})">${t}</button>`).join("");
+ const m=$("main");save();
+ if(anim){m.classList.remove("a");m.offsetWidth;m.classList.add("a");anim=false}
+ if(tab==0)up(m);else if(tab==1)inv(m);else if(tab==2)cs(m);else if(tab==3)bp(m);else adm(m);
+}
+function tick(){const w=G.bt+G.a.cd*1000-Date.now(),b=$("bonus");
+ if(w>0){b.disabled=true;const s=Math.ceil(w/1000);b.textContent="🎁 "+Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+ else{b.disabled=false;b.textContent="🎁 +"+G.a.bon+" ₽"}}
+function bonus(){if(Date.now()<G.bt+G.a.cd*1000)return;G.bt=Date.now();G.bal+=G.a.bon;render()}
+setInterval(tick,1000);
+function sum(){return sel.reduce((a,id)=>{const x=G.inv.find(i=>i.id==id);return a+(x?S[x.k][1]:0)},0)}
+function chance(){const s=sum();if(!s||tgt<0)return 0;return Math.min(100,s/S[tgt][1]*95*G.a.m)}
+function up(m){
+ sel=sel.filter(id=>G.inv.some(i=>i.id==id));const s=sum(),c=chance();
+ if(tgt>=0&&S[tgt][1]<=s)tgt=-1;
+ let h=`<h2>Твои самокаты (выбери один или несколько)</h2>`;
+ h+=G.inv.length?`<div class="grid">${G.inv.map(i=>card(i.k,"",sel.includes(i.id)?"sel":"",`onclick="pick(${i.id})"`)).join("")}</div>`:`<div class="empty">Инвентарь пуст. Открой кейс или забери бонус.</div>`;
+ h+=`<div class="wheel" id="wh" style="background:conic-gradient(var(--ok) 0 ${c*3.6}deg,var(--bad) ${c*3.6}deg 360deg)"><div class="arm" id="arm"><i></i></div><div class="mid">${c.toFixed(1)}%<small>шанс</small></div></div><div class="res" id="res">${res}</div>`;
+ h+=`<button class="btn" id="go" ${busy||!c?"disabled":""} onclick="roll()">Апгрейд ${s?f(s):""}</button>`;
+ h+=`<h2>Цель (дороже выбранного)</h2><div class="grid">${S.map((x,k)=>x[1]>s?card(k,"",tgt==k?"sel":"",`onclick="tg(${k})"`):"").join("")}</div>`;
+ m.innerHTML=h;
+}
+function pick(id){if(busy)return;const i=sel.indexOf(id);i<0?sel.push(id):sel.splice(i,1);res="";render()}
+function tg(k){if(busy)return;tgt=k;res="";render()}
+function fx(w){try{Telegram.WebApp.HapticFeedback.notificationOccurred(w?"success":"error")}catch(e){}const e=$("fx");e.className="";e.offsetWidth;e.className=w?"win":"lose";e.innerHTML=w?"":"<span>🤡</span>";}
+function roll(){
+ const c=chance();if(!c||busy)return;busy=true;res="";$("go").disabled=true;
+ const win=G.a.force==1?true:G.a.force==2?false:Math.random()*100<c,w=Math.min(c,99.4)*3.6;
+ const a=win?2+Math.random()*Math.max(0.1,w-4):w+2+Math.random()*Math.max(0.1,358-w-2);
+ const arm=$("arm");arm.style.transition="none";arm.style.transform="rotate(0deg)";arm.offsetWidth;
+ arm.style.transition="transform 4s cubic-bezier(.1,.7,.1,1)";arm.style.transform=`rotate(${360*6+a}deg)`;
+ setTimeout(()=>{
+  const t=tgt;G.inv=G.inv.filter(i=>!sel.includes(i.id));sel=[];
+  if(win){add(t);res=`<span style="color:var(--ok)">Победа! Получен ${nm(t)}</span>`;G.xp+=40}
+  else{res=`<span style="color:var(--bad)"><span class="clown">🤡</span> Проигрыш, самокаты сгорели</span>`;G.xp+=20}
+  tgt=-1;busy=false;render();fx(win);
+  const wh=$("wh");if(wh)wh.classList.add(win?"win":"lose");
+ },4300);
+}
+function inv(m){
+ const tot=G.inv.reduce((a,i)=>a+S[i.k][1],0);
+ let h=`<h2>Инвентарь · ${G.inv.length} шт · ${f(tot)}</h2>`;
+ if(!G.inv.length)h+=`<div class="empty">Пока пусто</div>`;
+ else h+=`<button class="btn g" onclick="sellAll()">Продать всё за ${f(tot)}</button><div class="grid" style="margin-top:8px">${G.inv.map(i=>card(i.k,`<button class="btn s" onclick="sell(${i.id})">Продать</button>`)).join("")}</div>`;
+ m.innerHTML=h;
+}
+function sell(id){const i=G.inv.find(x=>x.id==id);if(!i)return;G.bal+=S[i.k][1];G.inv=G.inv.filter(x=>x.id!=id);render()}
+function sellAll(){G.inv.forEach(i=>G.bal+=S[i.k][1]);G.inv=[];render()}
+function cs(m){
+ m.innerHTML=`<h2>Кейсы с самокатами</h2>`+CASES.map((c,n)=>`<div class="bp"><div class="m"><b>${c[0]}</b><div class="st">Дроп до ${f(c[3])}</div></div><button class="btn" ${!G.a.free&&G.bal<c[1]?"disabled":""} onclick="open_(${n})">${G.a.free?"Бесплатно":f(c[1])}</button></div>`).join("")+`<div id="drop"></div>`;
+}
+function open_(n){
+ const c=CASES[n],p=G.a.free?0:c[1];if(busy||G.bal<p)return;busy=true;G.bal-=p;$("bal").textContent=f(G.bal);
+ const pool=S.map((x,k)=>k).filter(k=>S[k][1]>=c[2]&&S[k][1]<=c[3]),wt=pool.map(k=>1/S[k][1]);
+ const rnd=()=>{let r=Math.random()*wt.reduce((a,b)=>a+b,0);for(let i=0;i<pool.length;i++){r-=wt[i];if(r<=0)return pool[i]}return pool[0]};
+ const w=rnd(),strip=[];for(let i=0;i<40;i++)strip.push(i==32?w:rnd());
+ $("drop").innerHTML=`<div class="roul"><div class="rpt"></div><div class="rs" id="rs">${strip.map(k=>`<div class="rc" style="--c:${TC[k]}">${svg(k)}<small>${S[k][0]}</small></div>`).join("")}</div></div>`;
+ const rs=$("rs"),box=rs.parentElement.clientWidth,x=32*96+48-box/2+(Math.random()*40-20);
+ rs.style.transform="translateX(0)";rs.offsetWidth;
+ rs.style.transition="transform 4.5s cubic-bezier(.12,.6,.1,1)";rs.style.transform=`translateX(${-x}px)`;
+ setTimeout(()=>{add(w);G.xp+=10;busy=false;render();$("drop").innerHTML=`<h2>Выпало</h2><div style="max-width:220px;margin:auto" class="drp">${card(w)}</div>`},4900);
+}
+const v=id=>+$(id).value;
+function adm(m){
+ const a=G.a,sec=(t,b)=>`<div class="bp ad"><b>${t}</b>${b}</div>`;
+ m.innerHTML=`<h2>Админ-панель</h2>`+
+ sec("Баланс",`<input id="av" type="number" placeholder="сумма"><div class="row"><button class="btn s" onclick="ab(0)">Установить</button><button class="btn s" onclick="ab(1)">Добавить</button><button class="btn s" onclick="ab(2)">+1 млн</button></div>`)+
+ sec("Уровень баттл пасса (0–15)",`<input id="al" type="number" min="0" max="15" value="${lvl()}"><div class="row"><button class="btn s" onclick="al(0)">Установить</button><button class="btn s" onclick="al(1)">Открыть все</button></div>`)+
+ sec("Выдать самокат",`<select id="as">${S.map((x,k)=>`<option value="${k}">${x[5]} ${x[0]} · ${f(x[1])}</option>`).join("")}</select><input id="an" type="number" value="1" min="1" max="50"><div class="row"><button class="btn s" onclick="ag(0)">Выдать</button><button class="btn s" onclick="ag(1)">Все модели</button><button class="btn s" onclick="ag(2)">Очистить</button></div>`)+
+ sec("Апгрейд",`<select id="af"><option value="0" ${a.force==0?"selected":""}>Честный шанс</option><option value="1" ${a.force==1?"selected":""}>Всегда победа</option><option value="2" ${a.force==2?"selected":""}>Всегда проигрыш</option></select><label class="st">Множитель шанса</label><input id="am" type="number" step="0.1" value="${a.m}">`)+
+ sec("Бонус",`<label class="st">Сумма, ₽</label><input id="abn" type="number" value="${a.bon}"><label class="st">Перезарядка, сек</label><input id="acd" type="number" value="${a.cd}"><div class="row"><button class="btn s" onclick="aa()">Применить всё</button><button class="btn s" onclick="G.bt=0;render()">Сбросить таймер</button></div>`)+
+ sec("Кейсы",`<div class="row"><button class="btn s" onclick="G.a.free=${a.free?0:1};render()">${a.free?"Выключить бесплатные":"Сделать бесплатными"}</button></div>`)+
+ sec("Опасная зона",`<div class="row"><button class="btn s g" onclick="areset()">Сбросить игру</button><button class="btn s g" onclick="G.au=0;go(0)">Выйти</button></div>`);
+}
+function ab(t){const x=v("av")||0;if(t==0)G.bal=x;else if(t==1)G.bal+=x;else G.bal+=1e6;render()}
+function al(t){G.xp=t?1500:Math.max(0,Math.min(15,v("al")||0))*100;render()}
+function ag(t){if(t==0){const n=Math.max(1,Math.min(50,v("an")||1));for(let i=0;i<n;i++)add(v("as"))}else if(t==1)S.forEach((x,k)=>add(k));else G.inv=[];sel=[];render()}
+function aa(){G.a.force=v("af");G.a.m=Math.max(.1,v("am")||1);G.a.bon=v("abn")||0;G.a.cd=Math.max(0,v("acd")||0);render()}
+function areset(){G={bal:1000,inv:[],xp:0,cl:[],nid:1,bt:0,au:1,a:{force:0,m:1,bon:200,cd:300,free:0}};add(0);add(1);sel=[];tgt=-1;render()}
+function go(i){tab=i;anim=true;render()}
+function gear(){if(G.au){go(4);return}$("md").classList.add("on");$("pw").value="";$("pe").textContent="";setTimeout(()=>$("pw").focus(),50)}
+function cl(){$("md").classList.remove("on")}
+function chk(){if($("pw").value==="wtfveizz777"){G.au=1;cl();go(4)}else $("pe").textContent="Неверный пароль"}
+function bp(m){
+ const L=lvl(),pct=G.xp>=1500?100:G.xp%100;
+ let h=`<h2>Уровень ${L} / 15 · опыт за апгрейды и кейсы</h2><div class="bar"><i style="width:${pct}%"></i></div>`;
+ BP.forEach((r,i)=>{const l=i+1,ok=L>=l,done=G.cl.includes(l);
+  const txt=r.m?f(r.m):"Самокат: "+nm(r.s);
+  h+=`<div class="bp ${done?"done":""}"><div class="lv">${l}</div><div class="m"><b>${txt}</b><div class="st">${ok?(done?"Получено":"Доступно"):"Нужен "+l+" уровень"}</div></div><button class="btn" ${!ok||done?"disabled":""} onclick="claim(${l})">Забрать</button></div>`});
+ m.innerHTML=h;
+}
+function claim(l){if(lvl()<l||G.cl.includes(l))return;const r=BP[l-1];r.m?G.bal+=r.m:add(r.s);G.cl.push(l);render()}
+try{const tg=window.Telegram.WebApp;tg.ready();tg.expand()}catch(e){}
+render();
+</script></body></html>
